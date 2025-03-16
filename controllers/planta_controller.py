@@ -2,7 +2,7 @@ from models.planta_model import PlantasModel
 
 class PlantaController:
     def __init__(self):
-        # Crear una instancia del modelo
+        # Crear una instancia del modelo prueba git
         self.plantas_model = PlantasModel()
 
     def obtener_plantas(self):
