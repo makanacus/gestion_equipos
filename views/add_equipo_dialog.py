@@ -77,6 +77,8 @@ class AddEquipoDialog(QDialog):
                 'ubicacion': self.ubicacion_input.currentText(),
                 'estado': self.estado_input.currentText(),
             }
+            # Si todo salió bien, mostrar mensaje de éxito y cerrar
+            QMessageBox.information(self, "Éxito", "Equipo agregado correctamente.")
             super().accept()
 
     def get_equipo_data(self):

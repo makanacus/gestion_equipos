@@ -2,13 +2,13 @@ from PyQt6.QtWidgets import QDialog, QFormLayout, QLineEdit, QComboBox, QDialogB
 from controllers.planta_controller import PlantaController
 
 class UpdateEquipoDialog(QDialog):
-    def __init__(self, equipo_id, equipo_data, equipo_model):
+    def __init__(self, equipo_id, equipo_data, controller):
         super().__init__()
         self.setWindowTitle("Modificar Equipo")
         self.setFixedSize(400, 300)
 
         self.equipo_id = equipo_id
-        self.equipo_model = equipo_model
+        self.controller = controller  # Usar el controlador
 
         # Crear formulario
         layout = QFormLayout()
@@ -57,7 +57,7 @@ class UpdateEquipoDialog(QDialog):
         """
         Guarda los cambios en la ubicación y el estado.
         """
-        self.equipo_model.update(
+        self.controller.update_equipo(
             self.equipo_id,
             ubicacion=self.ubicacion_input.currentText(),
             estado=self.estado_input.currentText()
