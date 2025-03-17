@@ -62,38 +62,30 @@ class RecambiosModelosModel:
             print(f"Error al obtener las relaciones por modelo: {e}")
             return []
 
-    def update(self, id_recambio, id_modelo, new_id_recambio=None, new_id_modelo=None):
+    def update_relaciones_by_recambio(self, id_recambio, nuevos_modelos):
         """
-        Actualiza una relación existente entre un recambio y un modelo.
+        Actualiza las relaciones de un recambio con los modelos.
         
-        :param id_recambio: ID del recambio actual.
-        :param id_modelo: ID del modelo actual.
-        :param new_id_recambio: Nuevo ID del recambio (opcional).
-        :param new_id_modelo: Nuevo ID del modelo (opcional).
-        :return: None
+        :param id_recambio: ID del recambio a actualizar.
+        :param nuevos_modelos: Lista de IDs de modelos seleccionados.
+        :return: True si se actualizó correctamente, False en caso de error.
         """
-        updates = []
-        params = []
-
-        if new_id_recambio is not None:
-            updates.append("id_recambio=?")
-            params.append(new_id_recambio)
-        if new_id_modelo is not None:
-            updates.append("id_modelo=?")
-            params.append(new_id_modelo)
-
-        if not updates:
-            print("No se proporcionaron datos para actualizar.")
-            return
-
-        query = f"UPDATE Recambios_Modelos SET {', '.join(updates)} WHERE id_recambio=? AND id_modelo=?"
-        params.extend([id_recambio, id_modelo])
-
         try:
-            self.db.execute_query(query, tuple(params))
-            print(f"Relación actualizada: Recambio '{id_recambio}' -> Modelo '{id_modelo}'.")
+            # 1️⃣ Eliminar todas las relaciones antiguas
+            delete_query = "DELETE FROM Recambios_Modelos WHERE id_recambio=?"
+            self.db.execute_query(delete_query, (id_recambio,))
+
+            # 2️⃣ Insertar las nuevas relaciones
+            insert_query = "INSERT INTO Recambios_Modelos (id_recambio, id_modelo) VALUES (?, ?)"
+            for id_modelo in nuevos_modelos:
+                self.db.execute_query(insert_query, (id_recambio, id_modelo))
+
+            print(f"Relaciones actualizadas para recambio {id_recambio}: {nuevos_modelos}")
+            return True
+
         except Exception as e:
-            print(f"Error al actualizar la relación: {e}")
+            print(f"Error al actualizar relaciones: {e}")
+            return False
 
     def delete(self, id_recambio, id_modelo):
         """

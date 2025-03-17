@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QHBoxLayout, QComboBox, QAbstractItemView
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QHBoxLayout, QComboBox, QAbstractItemView, QMessageBox
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize, Qt
 from views.add_equipo_dialog import AddEquipoDialog
@@ -118,6 +118,10 @@ class EquiposView(QWidget):
                 self.load_equipos()
     
     def delete_equipo(self, equipo_id):
-        print(f"Eliminar equipo {equipo_id}")
-        self.controller.delete_equipo(equipo_id)  # Usar el controlador
-        self.load_equipos()
+        confirm = QMessageBox.question(
+            self, "Confirmar", "¿Estás seguro de que quieres eliminar este equipo?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if confirm == QMessageBox.StandardButton.Yes:
+            self.controller.delete_equipo(equipo_id)  # Usar el controlador
+            self.load_equipos()

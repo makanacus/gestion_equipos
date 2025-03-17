@@ -107,18 +107,9 @@ class RecambiosView(QWidget):
             self.load_recambios()
     
     def modify_recambio(self, recambio_id):
-        recambio_data = self.controller.get_recambio_by_id(recambio_id)
-        if recambio_data:
-            recambio_dict = {
-                'id': str(recambio_data[0]),
-                'modelo_equipo': recambio_data[1],
-                'recambio': recambio_data[2],
-                'cantidad': recambio_data[3],
-                'cantidad_minima': recambio_data[4]
-            }
-            dialog = UpdateRecambioDialog(recambio_id, recambio_dict, self.controller)
-            if dialog.exec():
-                self.load_recambios()
+        dialog = UpdateRecambioDialog(recambio_id)
+        if dialog.exec():
+            self.load_recambios()
     
     def delete_recambio(self, recambio_id):
         confirm = QMessageBox.question(

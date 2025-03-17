@@ -40,17 +40,16 @@ class RecambiosModelosController:
         """
         return self.model.get_by_modelo(id_modelo)
 
-    def update_relacion(self, id_recambio, id_modelo, new_id_recambio=None, new_id_modelo=None):
+    def update_relacion(self, id_recambio, nuevos_modelos):
         """
-        Actualiza una relación existente entre un recambio y un modelo.
+        Actualiza las relaciones de un recambio con los modelos.
         
-        :param id_recambio: ID del recambio actual.
-        :param id_modelo: ID del modelo actual.
-        :param new_id_recambio: Nuevo ID del recambio (opcional).
-        :param new_id_modelo: Nuevo ID del modelo (opcional).
-        :return: None
+        :param id_recambio: ID del recambio a actualizar.
+        :param nuevos_modelos: Lista de nuevos IDs de modelos.
+        :return: True si se actualizó correctamente, False en caso de error.
         """
-        return self.model.update(id_recambio, id_modelo, new_id_recambio, new_id_modelo)
+        return self.model.update_relaciones_by_recambio(id_recambio, nuevos_modelos)
+
 
     def delete_relacion(self, id_recambio, id_modelo):
         """
