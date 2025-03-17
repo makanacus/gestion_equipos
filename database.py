@@ -14,16 +14,21 @@ class Database:
         finally:
             conn.close()
 
-    # Ejecutar una consulta sin necesidad de preocuparnos de cerrar la conexión
     def execute_query(self, query, params=()):
         with self.connect() as conn:
             cursor = conn.cursor()
             try:
                 cursor.execute(query, params)
-                conn.commit()  # Aseguramos que se hace commit después de una inserción/actualización
+                conn.commit()  # ✅ Confirmar cambios
+
+                # ✅ Si la consulta fue una inserción, devolver el ID insertado
+                if query.strip().lower().startswith("insert"):
+                    return cursor.lastrowid  
+                return True  # ✅ Para otras consultas, devolver None
             except sqlite3.Error as e:
                 print(f"Error al ejecutar la consulta: {e}")
-                conn.rollback()  # En caso de error, revertir la transacción
+                conn.rollback()  # ❌ Revertir si hay error
+                return None  # ❌ Retornar None si falla
 
     # Obtener resultados de una consulta
     def fetch_query(self, query, params=()):

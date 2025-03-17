@@ -1,6 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget
 from views.equipos_view import EquiposView  # Importamos la vista de Equipos
+from views.recambios_view import RecambiosView  # Importamos la vista de Recambios
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -13,7 +14,7 @@ class MainWindow(QWidget):
 
         # Crear pestañas vacías
         self.tab_equipos = EquiposView() # Ahora usamos la vista independiente
-        self.tab_recambios = QWidget() # Vacía por ahora
+        self.tab_recambios = RecambiosView() # Vacía por ahora
 
         # Agregar pestañas al widget
         self.tabs.addTab(self.tab_equipos, "Equipos")

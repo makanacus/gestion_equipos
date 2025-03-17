@@ -15,8 +15,9 @@ class RecambiosModelosModel:
         query = """INSERT INTO Recambios_Modelos (id_recambio, id_modelo)
                    VALUES (?, ?)"""
         try:
-            self.db.execute_query(query, (id_recambio, id_modelo))
+            result = self.db.execute_query(query, (id_recambio, id_modelo))
             print(f"Relación creada: Recambio '{id_recambio}' -> Modelo '{id_modelo}'.")
+            return result
         except Exception as e:
             print(f"Error al crear la relación: {e}")
 
