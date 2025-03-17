@@ -3,13 +3,16 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize, Qt
 from views.add_equipo_dialog import AddEquipoDialog
 from views.update_equipo_dialog import UpdateEquipoDialog
+from views.recambios_por_equipo_dialog import RepuestosEquipoDialog
 from controllers.equipo_controller import EquipoController
+from controllers.modelo_equipos_controller import ModeloEquiposController
 
 class EquiposView(QWidget):
     def __init__(self):
         super().__init__()
         
-        self.controller = EquipoController()  # Usar el controlador en lugar del modelo
+        self.equipo_controller = EquipoController()  # Usar el controlador en lugar del modelo
+        self.modelo_equipos_controller = ModeloEquiposController()  # Usar el controlador en lugar del modelo
         
         layout = QVBoxLayout()
         
@@ -41,12 +44,12 @@ class EquiposView(QWidget):
         self.load_equipos()
     
     def get_ubicaciones(self):
-        equipos = self.controller.get_all_equipos()  # Usar el controlador
+        equipos = self.equipo_controller.get_all_equipos()  # Usar el controlador
         return sorted(set(equipo[3] for equipo in equipos))
     
     def load_equipos(self):
         filtro = self.planta_filter.currentText()
-        equipos = self.controller.get_equipos_by_ubicacion(filtro) if filtro != "Todas" else self.controller.get_all_equipos()
+        equipos = self.equipo_controller.get_equipos_by_ubicacion(filtro) if filtro != "Todas" else self.equipo_controller.get_all_equipos()
         
         self.table.setRowCount(len(equipos))
         
@@ -94,17 +97,25 @@ class EquiposView(QWidget):
             modelo = dialog.modelo_input.text()
             ubicacion = dialog.ubicacion_input.currentText()
             estado = dialog.estado_input.currentText()
-            self.controller.create_equipo(id, equipo, modelo, ubicacion, estado)  # Usar el controlador
+            self.equipo_controller.create_equipo(id, equipo, modelo, ubicacion, estado)  # Usar el controlador
             self.load_equipos()
     
     def show_repuestos(self, equipo_id):
-        print(f"Mostrar repuestos del equipo {equipo_id}")
+        equipo_data = self.equipo_controller.get_equipo_by_id(equipo_id)  # Obtener equipo por ID
+        modelo = self.modelo_equipos_controller.get_modelo_by_nombre(equipo_data[2]) # Obtener modelo por Nombre
+        if equipo_data:
+            modelo_id = modelo[0]
+            dialog = RepuestosEquipoDialog(equipo_id, modelo_id)  # Pasar modelo_id en lugar del controlador
+            dialog.exec()  # Mostrar el diálogo
+        else:
+            QMessageBox.warning(self, "Error", "No se encontró el equipo.")
+
     
     def show_mantenimiento(self, equipo_id):
         print(f"Mostrar mantenimiento del equipo {equipo_id}")
     
     def modify_equipo(self, equipo_id):
-        equipo_data = self.controller.get_equipo_by_id(equipo_id)  # Usar el controlador
+        equipo_data = self.equipo_controller.get_equipo_by_id(equipo_id)  # Usar el controlador
         if equipo_data:
             equipo_dict = {
                 'id': str(equipo_data[0]),
@@ -113,7 +124,7 @@ class EquiposView(QWidget):
                 'ubicacion': equipo_data[3],
                 'estado': equipo_data[4]
             }
-            dialog = UpdateEquipoDialog(equipo_id, equipo_dict, self.controller)  # Pasar el controlador
+            dialog = UpdateEquipoDialog(equipo_id, equipo_dict, self.equipo_controller)  # Pasar el controlador
             if dialog.exec():
                 self.load_equipos()
     
@@ -123,5 +134,5 @@ class EquiposView(QWidget):
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if confirm == QMessageBox.StandardButton.Yes:
-            self.controller.delete_equipo(equipo_id)  # Usar el controlador
+            self.equipo_controller.delete_equipo(equipo_id)  # Usar el controlador
             self.load_equipos()
