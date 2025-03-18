@@ -6,6 +6,8 @@ from PyQt6.QtGui import QIcon, QColor
 from PyQt6.QtCore import QSize, Qt, QDate
 from controllers.mantenimiento_controller import MantenimientoController
 from functools import partial
+from views.add_mantenimiento_dialog import AddMantenimientoDialog
+from views.update_mantenimiento_dialog import UpdateMantenimientoDialog
 
 class MantenimientosView(QWidget):
     def __init__(self, equipo_id):
@@ -75,50 +77,46 @@ class MantenimientosView(QWidget):
         self.table.setRowCount(len(mantenimientos))
 
         today = QDate.currentDate()  # Fecha actual
-        last_row = len(mantenimientos) - 1  # Índice del último registro
 
         for row, mantenimiento in enumerate(mantenimientos):
             self.table.setRowHeight(row, 40)
             valores = [mantenimiento[0], mantenimiento[2], mantenimiento[3], mantenimiento[4], mantenimiento[5], mantenimiento[6]]
 
             for col, data in enumerate(valores):
-                # Si el valor es None, "", o "null", dejar la celda vacía
                 data = "" if data is None or str(data).strip().lower() == "null" or str(data).strip() == "" else str(data)
-
                 item = QTableWidgetItem(data)
                 item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
-                # Si es la última fila y es la columna "Próximo Mantenimiento" (índice 3)
-                if row == last_row and col == 3 and data:
+                # Colorear la celda de "Próximo Mantenimiento" (columna 3) en cualquier fila
+                if col == 3 and data:
                     proximo_mantenimiento = QDate.fromString(data, "yyyy-MM-dd")
                     dias_restantes = today.daysTo(proximo_mantenimiento)
 
-                    if dias_restantes <= 7:  
+                    if dias_restantes <= 7:
                         item.setBackground(QColor(255, 0, 0))  # Rojo
                     else:
                         item.setBackground(QColor(0, 255, 0))  # Verde
-                
-                # Si es la columna "Descripción" (índice 5), agregar tooltip con texto formateado
+
+                # Tooltip para la descripción
                 if col == 5 and data:
-                    descripcion_formateada = textwrap.fill(data, width=50)  # Divide en líneas de 50 caracteres
+                    descripcion_formateada = textwrap.fill(data, width=50)
                     item.setToolTip(descripcion_formateada)
 
                 self.table.setItem(row, col, item)
 
-            # Botones de acciones
+            # Botones de acciones en todas las filas
             btn_layout = QHBoxLayout()
 
-            # Solo mostrar el botón de "Modificar" en el último mantenimiento
-            if row == last_row:
-                btn_modify = self.create_button("resources/images/modificacion.png", "Modificar", partial(self.modify_mantenimiento, valores[0]))
-                btn_layout.addWidget(btn_modify)
-
+            btn_modify = self.create_button("resources/images/modificacion.png", "Modificar", partial(self.modify_mantenimiento, valores[0]))
             btn_delete = self.create_button("resources/images/borrar.png", "Borrar", partial(self.delete_mantenimiento, valores[0]))
+
+            btn_layout.addWidget(btn_modify)
             btn_layout.addWidget(btn_delete)
 
             action_widget = QWidget()
             action_widget.setLayout(btn_layout)
             self.table.setCellWidget(row, 6, action_widget)
+
             
     def create_button(self, icon_path, tooltip, action):
         button = QPushButton()
@@ -130,15 +128,21 @@ class MantenimientosView(QWidget):
         return button
     
     def add_mantenimiento(self):
-        """
-        Método para agregar un nuevo mantenimiento.
-        Aquí puedes abrir una nueva ventana o formulario para ingresar los datos.
-        """
-        QMessageBox.information(self, "Agregar", "Aquí irá la lógica para agregar un mantenimiento.")
+        dialog = AddMantenimientoDialog(self.equipo_id)
+        if dialog.exec():
+            self.load_mantenimientos()
     
     def modify_mantenimiento(self, mantenimiento_id):
-        # Lógica para modificar el mantenimiento
-        pass
+        # Obtener los datos del mantenimiento seleccionado
+        mantenimiento = self.controller.obtener_mantenimiento_por_id(mantenimiento_id)
+
+        if not mantenimiento:
+            QMessageBox.warning(self, "Error", "No se encontró el mantenimiento.")
+            return
+
+        dialog = UpdateMantenimientoDialog(mantenimiento)
+        if dialog.exec():
+            self.load_mantenimientos()  # Recargar la tabla después de la modificación
     
     def delete_mantenimiento(self, mantenimiento_id):
         confirm = QMessageBox.question(
