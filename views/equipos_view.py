@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTableWidget, QTa
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize, Qt
 from views.add_equipo_dialog import AddEquipoDialog
+from views.mantenimientos_view import MantenimientosView
 from views.update_equipo_dialog import UpdateEquipoDialog
 from views.recambios_por_equipo_dialog import RepuestosEquipoDialog
 from controllers.equipo_controller import EquipoController
@@ -112,7 +113,8 @@ class EquiposView(QWidget):
 
     
     def show_mantenimiento(self, equipo_id):
-        print(f"Mostrar mantenimiento del equipo {equipo_id}")
+        self.mantenimiento_window = MantenimientosView(equipo_id)  # Crear la ventana
+        self.mantenimiento_window.show()  # Mostrar la ventana
     
     def modify_equipo(self, equipo_id):
         equipo_data = self.equipo_controller.get_equipo_by_id(equipo_id)  # Usar el controlador
