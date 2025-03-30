@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-# admin_equipos
-Aplicación que administra equipos industriales
-=======
+# admin_equipos Aplicación que administra equipos industriales
 
 ### Resumen de los pasos que cubre este README:
 
@@ -22,4 +19,3 @@ Aplicación que administra equipos industriales
    - Abre Visual Studio Code.
    - Abre la paleta de comandos con Ctrl + Shift + P.
    - Escribe Python: Select Interpreter y selecciona el intérprete que está dentro de la carpeta venv, por ejemplo, .\venv\Scripts\python.exe.
->>>>>>> 877f6c9 (Mi primer commit)

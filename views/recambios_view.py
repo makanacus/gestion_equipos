@@ -67,10 +67,10 @@ class RecambiosView(QWidget):
                 if col == 4:  
                     if data:  
                         item.setText("Bajo")  
-                        item.setBackground(Qt.GlobalColor.red)  
+                        item.setBackground(Qt.GlobalColor.darkRed)  
                     else:  
                         item.setText("Correcto")  
-                        item.setBackground(Qt.GlobalColor.green)  
+                        item.setBackground(Qt.GlobalColor.darkGreen)  
 
                 self.table.setItem(row, col, item)
 
