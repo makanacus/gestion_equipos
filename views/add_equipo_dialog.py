@@ -18,7 +18,7 @@ class AddEquipoDialog(QDialog):
         self.estado_input = QComboBox()
         self.estado_input.addItems(["Activo", "Inactivo"])  # Ejemplo de estados
 
-         # Cargar las plantas dinámicamente
+        # Cargar las plantas dinámicamente
         self.cargar_plantas()
 
         # Añadir campos al formulario
@@ -70,11 +70,12 @@ class AddEquipoDialog(QDialog):
     def accept(self):
         # Validamos antes de aceptar
         if self.validate_fields():
+
             # Pasar los datos validados a la ventana principal
             self.equipo_data = {
                 'equipo': self.equipo_input.text().strip(),
                 'modelo': self.modelo_input.text().strip(),
-                'ubicacion': self.ubicacion_input.currentText(),
+                'id_planta': self.ubicacion_input.currentData(),
                 'estado': self.estado_input.currentText(),
             }
             # Si todo salió bien, mostrar mensaje de éxito y cerrar
@@ -95,11 +96,13 @@ class AddEquipoDialog(QDialog):
         plantas_controller = PlantaController()
 
         # Obtener los nombres de las plantas
-        nombres_plantas = plantas_controller.obtener_plantas()
+        plantas = plantas_controller.obtener_plantas()
+        # nombres_plantas = plantas_controller.obtener_plantas()
 
         # Limpiar el QComboBox antes de agregar nuevos elementos
         self.ubicacion_input.clear()
 
-        # Agregar los nombres de las plantas al QComboBox
-        self.ubicacion_input.addItems(nombres_plantas)
+        # Agregar las plantas al QComboBox con sus IDs
+        for planta in plantas:
+            self.ubicacion_input.addItem(planta[1], planta[0])  # Añadir el nombre y almacenar el id
 

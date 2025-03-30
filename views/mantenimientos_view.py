@@ -93,9 +93,9 @@ class MantenimientosView(QWidget):
                     dias_restantes = today.daysTo(proximo_mantenimiento)
 
                     if dias_restantes <= 7:
-                        item.setBackground(QColor(255, 0, 0))  # Rojo
+                        item.setBackground(Qt.GlobalColor.darkRed)  # Rojo
                     else:
-                        item.setBackground(QColor(0, 255, 0))  # Verde
+                        item.setBackground(Qt.GlobalColor.darkGreen)  # Verde
 
                 # Tooltip para la descripción
                 if col == 5 and data:

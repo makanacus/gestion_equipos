@@ -12,5 +12,4 @@ class PlantaController:
         :return: Lista de nombres de plantas.
         """
         plantas = self.plantas_model.get_all()
-        nombres_plantas = [planta[1] for planta in plantas]  # Acceder al segundo elemento de la tupla (nombre)
-        return nombres_plantas
+        return plantas if plantas else []  # Asegurar que no sea None
