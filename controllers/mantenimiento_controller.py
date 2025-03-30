@@ -92,3 +92,9 @@ class MantenimientoController:
         except Exception as e:
             print(f"Error en el controlador al obtener mantenimientos por equipo: {e}")
             return []
+        
+    def es_mantenimiento_necesario(self, mantenimiento_id):
+        """
+        Llama al modelo para verificar si un mantenimiento es necesario.
+        """
+        return self.model.es_mantenimiento_necesario(mantenimiento_id)

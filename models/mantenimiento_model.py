@@ -1,5 +1,7 @@
 from database import Database
 
+from datetime import datetime, timedelta
+
 class MantenimientoModel:
     def __init__(self):
         self.db = Database()
@@ -122,3 +124,33 @@ class MantenimientoModel:
         except Exception as e:
             print(f"Error al obtener los mantenimientos por equipo: {e}")
             return []
+        
+    from datetime import datetime, timedelta
+
+    def es_mantenimiento_necesario(self, mantenimiento_id):
+        """
+        Verifica si un mantenimiento necesita realizarse porque quedan 7 días o menos para el próximo mantenimiento
+        o si la fecha ya ha pasado.
+
+        :param mantenimiento_id: ID del mantenimiento a verificar.
+        :return: True si el mantenimiento es necesario, False si no.
+        """
+        mantenimiento = self.get_by_id(mantenimiento_id)
+        
+        if not mantenimiento:
+            print(f"No se encontró el mantenimiento con ID '{mantenimiento_id}'.")
+            return False
+        
+        proximo_mantenimiento = mantenimiento[4]
+
+        # Convertir el string a datetime
+        try:
+            proximo_mantenimiento = datetime.strptime(proximo_mantenimiento, "%Y-%m-%d")
+        except ValueError:
+            print(f"⚠️ Error: La fecha '{proximo_mantenimiento}' no tiene el formato esperado YYYY-MM-DD.")
+            return False
+
+        # Calcular la diferencia de días entre hoy y la fecha del próximo mantenimiento
+        dias_restantes = (proximo_mantenimiento - datetime.today()).days
+
+        return dias_restantes <= 7  # Retorna True si quedan 7 días o menos, o si ya pasó

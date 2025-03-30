@@ -8,6 +8,7 @@ from views.recambios_por_equipo_dialog import RepuestosEquipoDialog
 from controllers.equipo_controller import EquipoController
 from controllers.modelo_equipos_controller import ModeloEquiposController
 from controllers.planta_controller import PlantaController
+from controllers.mantenimiento_controller import MantenimientoController
 
 class EquiposView(QWidget):
     def __init__(self):
@@ -16,6 +17,7 @@ class EquiposView(QWidget):
         self.equipo_controller = EquipoController()  # Usar el controlador en lugar del modelo
         self.modelo_equipos_controller = ModeloEquiposController()  # Usar el controlador en lugar del modelo
         self.planta_controller = PlantaController()  # Usar el controlador en lugar del modelo
+        self.mantenimiento_controller = MantenimientoController()  # Usar el controlador en lugar del modelo
         
         layout = QVBoxLayout()
         
@@ -80,6 +82,7 @@ class EquiposView(QWidget):
             self.table.setRowHeight(row, 40)
 
         for row, equipo in enumerate(equipos):
+            matenimiento_necesario = self.comprobar_mantenimiento_equipo(equipo)
             for col, data in enumerate(equipo[:5]):
                 item = QTableWidgetItem(str(data))
                 item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -87,29 +90,47 @@ class EquiposView(QWidget):
 
             btn_layout = QHBoxLayout()
 
-            btn_repuestos = self.create_button("resources/images/recambios.png", "Repuestos", lambda _, eq_id=equipo[0]: self.show_repuestos(eq_id))
+            btn_repuestos = self.create_button("resources/images/recambios.png", "Repuestos", lambda _, eq_id=equipo[0]: self.show_repuestos(eq_id), matenimiento_necesario, "REPUESTOS")
             btn_layout.addWidget(btn_repuestos)
 
-            btn_mantenimiento = self.create_button("resources/images/mantenimiento.png", "Mantenimiento", lambda _, eq_id=equipo[0]: self.show_mantenimiento(eq_id))
-            btn_layout.addWidget(btn_mantenimiento)
+            if(matenimiento_necesario):
+                btn_mantenimiento = self.create_button("resources/images/advertencia.png", "Mantenimiento necesario", lambda _, eq_id=equipo[0]: self.show_mantenimiento(eq_id), matenimiento_necesario, "MANTENIMIENTO")
+                btn_layout.addWidget(btn_mantenimiento)
+            else:
+                btn_mantenimiento = self.create_button("resources/images/mantenimiento.png", "Mantenimiento", lambda _, eq_id=equipo[0]: self.show_mantenimiento(eq_id), matenimiento_necesario, "MANTENIMIENTO")
+                btn_layout.addWidget(btn_mantenimiento)
 
-            btn_modify = self.create_button("resources/images/modificacion.png", "Modificar", lambda _, eq_id=equipo[0]: self.modify_equipo(eq_id))
+            btn_modify = self.create_button("resources/images/modificacion.png", "Modificar", lambda _, eq_id=equipo[0]: self.modify_equipo(eq_id), matenimiento_necesario, "MODIFICAR")
             btn_layout.addWidget(btn_modify)
 
-            btn_delete = self.create_button("resources/images/borrar.png", "Borrar", lambda _, eq_id=equipo[0]: self.delete_equipo(eq_id))
+            btn_delete = self.create_button("resources/images/borrar.png", "Borrar", lambda _, eq_id=equipo[0]: self.delete_equipo(eq_id), matenimiento_necesario, "BORRAR")
             btn_layout.addWidget(btn_delete)
 
             action_widget = QWidget()
             action_widget.setLayout(btn_layout)
             self.table.setCellWidget(row, 5, action_widget)
 
-    def create_button(self, icon_path, tooltip, action):
+    def comprobar_mantenimiento_equipo(self, equipo):
+        mantenimientos_equipo = self.mantenimiento_controller.obtener_mantenimientos_por_equipo(equipo[0])
+        ultimo_mantenimiento = mantenimientos_equipo[-1] if mantenimientos_equipo else None
+
+        if not ultimo_mantenimiento:
+            return False
+        
+        return self.mantenimiento_controller.es_mantenimiento_necesario(ultimo_mantenimiento[0])
+
+    def create_button(self, icon_path, tooltip, action, matenimiento_necesario, type):
         button = QPushButton()
         button.setIcon(QIcon(icon_path))
         button.setIconSize(QSize(20, 20))
         button.setToolTip(tooltip)
         button.setFixedSize(27, 27)
         button.clicked.connect(action)
+
+        if(matenimiento_necesario and type == "MANTENIMIENTO"):
+            button.setStyleSheet("background-color: red;")
+        
+
         return button
 
     def show_add_equipo_dialog(self):
