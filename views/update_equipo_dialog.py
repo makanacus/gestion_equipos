@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QDialog, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox
+from PyQt6.QtWidgets import QDialog, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox, QMessageBox
 from controllers.planta_controller import PlantaController
 
 class UpdateEquipoDialog(QDialog):
@@ -8,7 +8,8 @@ class UpdateEquipoDialog(QDialog):
         self.setFixedSize(400, 300)
 
         self.equipo_id = equipo_id
-        self.controller = controller  # Usar el controlador
+        self.controller = controller
+        self.equipo_data = equipo_data  # Guardar los datos para usarlos después
 
         # Crear formulario
         layout = QFormLayout()
@@ -28,11 +29,7 @@ class UpdateEquipoDialog(QDialog):
         self.estado_input = QComboBox()
         self.estado_input.addItems(["Activo", "Inactivo"])
 
-        # Cargar valores actuales
-        self.ubicacion_input.setCurrentText(equipo_data['ubicacion'])
-        self.estado_input.setCurrentText(equipo_data['estado'])
-
-        # Cargar las plantas dinámicamente
+        # Cargar las plantas dinámicamente (esto establecerá la selección automáticamente)
         self.cargar_plantas()
 
         # Añadir campos al formulario
@@ -59,16 +56,38 @@ class UpdateEquipoDialog(QDialog):
         """
         self.controller.update_equipo(
             self.equipo_id,
-            ubicacion=self.ubicacion_input.currentText(),
+            id_planta=self.ubicacion_input.currentData(),
             estado=self.estado_input.currentText()
         )
+        QMessageBox.information(self, "Éxito", "Equipo actualizado correctamente.")
         super().accept()
 
     def cargar_plantas(self):
         """
-        Carga las plantas desde el controlador y las añade al QComboBox.
+        Carga las plantas desde el controlador y establece la selección actual.
         """
         plantas_controller = PlantaController()
-        nombres_plantas = plantas_controller.obtener_plantas()
+        plantas = plantas_controller.obtener_plantas()
+
         self.ubicacion_input.clear()
-        self.ubicacion_input.addItems(nombres_plantas)
+
+        current_index = -1
+        for idx, planta in enumerate(plantas):
+            # Asumimos que 'planta' es una tupla (id_planta, nombre)
+            self.ubicacion_input.addItem(planta[1], planta[0])
+            
+            # Verificar si esta es la planta actual del equipo
+            if str(planta[0]) == str(self.equipo_data.get('id_planta')):
+                current_index = idx
+            elif planta[1] == self.equipo_data.get('ubicacion'):
+                current_index = idx
+
+        # Establecer la selección después de cargar todos los items
+        if current_index >= 0:
+            self.ubicacion_input.setCurrentIndex(current_index)
+
+        # Establecer el estado
+        estado_text = self.equipo_data.get('estado', 'Activo')
+        estado_index = self.estado_input.findText(estado_text)
+        if estado_index >= 0:
+            self.estado_input.setCurrentIndex(estado_index)
